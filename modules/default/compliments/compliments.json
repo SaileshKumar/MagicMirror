@@ -1,0 +1,17 @@
+{
+	"anytime": [
+		"If you stare any longer I'm going to blush.",
+		"I've been reflecting on this and you look great.",
+		"I'd check you out but I'm a mirror.",
+		"You have spinach in your teeth.",
+		"That outfit is perfect.",
+		"You are glowing.",
+		"You look good.",
+		"Been working out?"
+	],
+	"morning": ["You look like you need more coffee. Go get some.", "Have a wonderful day!", "Rise and shine, beautiful."],
+	"afternoon": ["How's your day? Don't answer. I'm a mirror.", "You again?"],
+	"evening": ["Netflix isn't going to watch itself.", "Time for a wonderful walk."],
+	"0 22-23 * * *": ["If you can read this it's past Lipi's bedtime.", "Don't you have somewhere to be?"],
+	"0 0-2 * * *": ["If you can read this it's past Lipi's bedtime.", "Don't you have somewhere to be?"]
+}

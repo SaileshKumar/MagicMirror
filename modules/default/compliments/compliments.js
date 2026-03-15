@@ -22,6 +22,7 @@ Module.register("compliments", {
 		specialDayUnique: false
 	},
 	compliments_new: null,
+	activeOverride: null,
 	refreshMinimumDelay: 15 * 60 * 1000, // 15 minutes
 	lastIndexUsed: -1,
 	// Set currentweather from module
@@ -34,11 +35,35 @@ Module.register("compliments", {
 		return ["croner.js", "moment.js"];
 	},
 
+	async checkOverride () {
+		const url = this.file("override.json");
+		try {
+			const response = await fetch(`${url}?t=${Date.now()}`);
+			if (response.ok) {
+				const data = await response.json();
+				const now = moment();
+				const active = (data.overrides || []).find((entry) => {
+					if (!entry.message) return false;
+					const start = entry.start ? moment(entry.start) : null;
+					const end = entry.end ? moment(entry.end) : null;
+					return (!start || now.isSameOrAfter(start)) && (!end || now.isBefore(end));
+				});
+				this.activeOverride = active ? active.message : null;
+			} else {
+				this.activeOverride = null;
+			}
+		} catch {
+			this.activeOverride = null;
+		}
+	},
+
 	// Define start sequence.
 	async start () {
 		Log.info(`Starting module: ${this.name}`);
 
 		this.lastComplimentIndex = -1;
+
+		await this.checkOverride();
 
 		if (this.config.remoteFile !== null) {
 			const response = await this.loadComplimentFile();
@@ -73,7 +98,8 @@ Module.register("compliments", {
 		}
 		// Schedule update timer. sync to the minute start (if needed), so minute based events happen on the minute start
 		setTimeout(() => {
-			setInterval(() => {
+			setInterval(async () => {
+				await this.checkOverride();
 				this.updateDom(this.config.fadeSpeed);
 			}, this.config.updateInterval);
 		},
@@ -136,6 +162,11 @@ Module.register("compliments", {
 		const hour = now.hour();
 		const date = now.format("YYYY-MM-DD");
 		let compliments = [];
+
+		// If a timed override is active, show only that message
+		if (this.activeOverride) {
+			return [this.activeOverride];
+		}
 
 		// Add time of day compliments
 		let timeOfDay;
