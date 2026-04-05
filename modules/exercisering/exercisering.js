@@ -39,7 +39,7 @@ Module.register("exercisering", {
 
 	getDom () {
 		const wrapper = document.createElement("div");
-		wrapper.className = "exercise-wrapper";
+		wrapper.className = "exercise-wrapper small";
 
 		const users = Object.entries(this.userData);
 		if (users.length === 0) {

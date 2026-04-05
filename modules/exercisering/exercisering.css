@@ -10,18 +10,15 @@
 
 .exercise-name {
   min-width: 70px;
-  font-size: 0.85em;
 }
 
 .exercise-icons {
   display: flex;
   flex: 1;
   gap: 10px;
-  font-size: 1.1em;
 }
 
 .exercise-time {
-  font-size: 0.85em;
   white-space: nowrap;
   margin-left: auto;
 }
