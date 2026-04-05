@@ -1,0 +1,27 @@
+.exercise-wrapper {
+  text-align: left;
+}
+
+.exercise-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.exercise-name {
+  min-width: 70px;
+  font-size: 0.85em;
+}
+
+.exercise-icons {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+  font-size: 1.1em;
+}
+
+.exercise-time {
+  font-size: 0.85em;
+  white-space: nowrap;
+  margin-left: auto;
+}

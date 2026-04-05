@@ -1,0 +1,9 @@
+[
+	{ "name": "walking", "icon": "mdi mdi-walk", "aliases": ["walking"] },
+	{ "name": "running", "icon": "mdi mdi-run", "aliases": ["running"] },
+	{ "name": "yoga", "icon": "mdi mdi-yoga", "aliases": ["yoga"] },
+	{ "name": "traditional strength training", "icon": "mdi mdi-dumbbell", "aliases": ["traditional strength training", "functional strength training", "strength training", "strength"] },
+	{ "name": "tennis", "icon": "mdi mdi-tennis", "aliases": ["tennis"] },
+	{ "name": "pickleball", "icon": "mdi mdi-badminton", "aliases": ["pickleball"] },
+	{ "name": "basketball", "icon": "mdi mdi-basketball", "aliases": ["basketball"] }
+]

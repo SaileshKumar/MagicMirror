@@ -1,12 +1,13 @@
-.calendar .symbol {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  gap: 5px;
+.calendar .event-wrapper td {
+  vertical-align: middle;
+}
+
+.calendar .symbol span {
+  margin-right: 5px;
 }
 
 .calendar .title {
-  padding: 0 10px;
+  padding: 0 4px;
 }
 
 .calendar .time {
