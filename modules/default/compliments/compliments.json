@@ -14,7 +14,14 @@
 		"You seem to like looking at yourself.",
 		"If beauty were a crime, you'd be serving a life sentence.",
 		"Made you look!",
-		":)"
+		":)",
+		"A perfect mix of Saturday night and the rest of your life.",
+		"You stop the room when you walk in.",
+		"Who, being loved, is poor?",
+		"Loved things grow.",
+		"What you seek is seeking you.",
+		"The days may be long, but the years are short.",
+		"Objects in mirror are cuter than they appear."
 	],
 	"morning": [
 		"You look like you need more coffee. Go get some.",
@@ -30,7 +37,7 @@
 	"evening": ["Netflix isn't going to watch itself.", "Time for a wonderful walk.", "You look like you're ready to go out.", "You look like you're ready to stay in.", "Relax, you've earned it.", "You're yawning a lot. Go to sleep."],
 	"* 22-23 * * *": ["If you can read this it's past Lipi's bedtime.", "Don't you have somewhere to be?"],
 	"* 0-2 * * *": ["If you can read this it's past Lipi's bedtime.", "Don't you have somewhere to be?"],
-	"day_sprinkle": ["A little rain won't ruin your shine.", "Sprinkles outside, sparkle inside.", "A little rain won't ruin your shine.", "Sprinkles outside, sparkle inside."],
-	"day_showers": ["A little rain won't ruin your shine.", "Rain on the forecast, pakora time?", "A little rain won't ruin your shine.", "Rain on the forecast, pakora time?"],
+	"day_sprinkle": ["No rain, no flowers.", "No rain, no flowers.", "A little rain won't ruin your shine.", "Sprinkles outside, sparkle inside.", "A little rain won't ruin your shine.", "Sprinkles outside, sparkle inside."],
+	"day_showers": ["No rain, no flowers.", "No rain, no flowers.", "A little rain won't ruin your shine.", "Rain on the forecast, pakora time?", "A little rain won't ruin your shine.", "Rain on the forecast, pakora time?"],
 	"night_clear": ["The stars are jealous of you tonight.", "The stars are jealous of you tonight.", "Clear skies, happy dreams!", "Clear skies, happy dreams!"]
 }
