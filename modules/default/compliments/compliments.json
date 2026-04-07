@@ -11,10 +11,10 @@
 		"You just made this room brighter.",
 		"Confidence looks good on you.",
 		"Mirror check: flawless.",
-		"Did someone order charm? Oh, it's you.",
 		"You seem to like looking at yourself.",
 		"If beauty were a crime, you'd be serving a life sentence.",
-		"Made you look!"
+		"Made you look!",
+		":)"
 	],
 	"morning": [
 		"You look like you need more coffee. Go get some.",
@@ -23,13 +23,14 @@
 		"Sun's up, so is your sparkle.",
 		"Time to make today ridiculously amazing.",
 		"Chai Banaye?",
-		"Your bed called, it wants you back."
+		"Your bed called, it wants you back.",
+		"Good morning Lipika!"
 	],
 	"afternoon": ["How's your day? Don't answer. I'm a mirror.", "You again?", "Halfway through the day and still looking fabulous."],
 	"evening": ["Netflix isn't going to watch itself.", "Time for a wonderful walk.", "You look like you're ready to go out.", "You look like you're ready to stay in.", "Relax, you've earned it.", "You're yawning a lot. Go to sleep."],
 	"* 22-23 * * *": ["If you can read this it's past Lipi's bedtime.", "Don't you have somewhere to be?"],
 	"* 0-2 * * *": ["If you can read this it's past Lipi's bedtime.", "Don't you have somewhere to be?"],
-	"day_sprinkle": ["A little rain won't ruin your shine.", "Sprinkles outside, sparkle inside."],
-	"day_showers": ["A little rain won't ruin your shine.", "Rain on the forecast, pakora time?"],
-	"night_clear": ["The stars are jealous of you tonight."]
+	"day_sprinkle": ["A little rain won't ruin your shine.", "Sprinkles outside, sparkle inside.", "A little rain won't ruin your shine.", "Sprinkles outside, sparkle inside."],
+	"day_showers": ["A little rain won't ruin your shine.", "Rain on the forecast, pakora time?", "A little rain won't ruin your shine.", "Rain on the forecast, pakora time?"],
+	"night_clear": ["The stars are jealous of you tonight.", "The stars are jealous of you tonight.", "Clear skies, happy dreams!", "Clear skies, happy dreams!"]
 }
