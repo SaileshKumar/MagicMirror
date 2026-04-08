@@ -324,7 +324,12 @@ Module.register("calendar", {
 				const symbols = this.symbolsForEvent(event);
 				symbols.forEach((s) => {
 					const symbol = document.createElement("span");
-					symbol.className = s;
+					if ((/\P{ASCII}/u).test(s)) {
+						symbol.textContent = s;
+						symbol.style.fontFamily = "'Noto Color Emoji', sans-serif";
+					} else {
+						symbol.className = s;
+					}
 					symbolWrapper.appendChild(symbol);
 				});
 				eventWrapper.appendChild(symbolWrapper);
@@ -619,6 +624,8 @@ Module.register("calendar", {
 			const calendar = this.calendarData[calendarUrl].events;
 			let remainingEntries = this.maximumEntriesForUrl(calendarUrl);
 			let maxPastDaysCompare = now.clone().subtract(this.maximumPastDaysForUrl(calendarUrl), "days");
+			const maxPerDay = this.maxPerDayForUrl(calendarUrl);
+			const priorityEvents = this.priorityEventsForUrl(calendarUrl);
 			let by_url_calevents = [];
 			for (const e in calendar) {
 				const event = JSON.parse(JSON.stringify(calendar[e])); // clone object
@@ -690,10 +697,24 @@ Module.register("calendar", {
 				}
 			}
 			if (limitNumberOfEntries) {
-				// sort entries before clipping
-				by_url_calevents.sort(function (a, b) {
-					return a.startDate - b.startDate;
+				// sort entries before clipping, priority events win same-day tiebreaks
+				by_url_calevents.sort((a, b) => {
+					if (a.startDate !== b.startDate) return a.startDate - b.startDate;
+					const aPriority = priorityEvents.some((p) => new RegExp(p, "i").test(a.title));
+					const bPriority = priorityEvents.some((p) => new RegExp(p, "i").test(b.title));
+					if (aPriority && !bPriority) return -1;
+					if (!aPriority && bPriority) return 1;
+					return 0;
 				});
+				if (maxPerDay !== undefined) {
+					const seenDates = {};
+					by_url_calevents = by_url_calevents.filter((event) => {
+						const dateKey = this.timestampToMoment(event.startDate).format("YYYY-MM-DD");
+						if ((seenDates[dateKey] || 0) >= maxPerDay) return false;
+						seenDates[dateKey] = (seenDates[dateKey] || 0) + 1;
+						return true;
+					});
+				}
 				Log.debug(`[calendar] pushing ${by_url_calevents.length} events to total with room for ${remainingEntries}`);
 				events = events.concat(by_url_calevents.slice(0, remainingEntries));
 				Log.debug(`[calendar] events for calendar=${events.length}`);
@@ -883,6 +904,25 @@ Module.register("calendar", {
 	 */
 	maximumPastDaysForUrl (url) {
 		return this.getCalendarProperty(url, "pastDaysCount", this.config.pastDaysCount);
+	},
+
+	/**
+	 * Retrieves the maximum number of events per day for a specific calendar url.
+	 * @param {string} url The calendar url
+	 * @returns {number} The maximum events per day (undefined = unlimited)
+	 */
+	maxPerDayForUrl (url) {
+		return this.getCalendarProperty(url, "maxPerDay", undefined);
+	},
+
+	/**
+	 * Retrieves the priority events list for a specific calendar url.
+	 * Events whose titles match any entry (as a case-insensitive regex) win same-day tiebreaks.
+	 * @param {string} url The calendar url
+	 * @returns {string[]} Array of regex patterns
+	 */
+	priorityEventsForUrl (url) {
+		return this.getCalendarProperty(url, "priorityEvents", []);
 	},
 
 	/**
