@@ -8,7 +8,7 @@ const WORKOUTS = require("./workouts.json");
 // Build alias → canonical name lookup: { "functional strength training": "traditional strength training", ... }
 const ALIAS_MAP = {};
 for (const w of WORKOUTS) {
-	for (const alias of w.aliases) {
+	for (const alias of (w.aliases || [])) {
 		ALIAS_MAP[alias.toLowerCase()] = w.name;
 	}
 }
@@ -16,6 +16,20 @@ for (const w of WORKOUTS) {
 function normalizeWorkoutType (raw) {
 	const lower = raw.toLowerCase().trim();
 	return ALIAS_MAP[lower] ?? lower;
+}
+
+/**
+ * Parse Apple's duration fragment (between "for " and " today"), e.g.
+ * "57 minutes, 44 seconds", "1 hour, 2 minutes", "30 minutes".
+ * Minutes-only regex used to mis-read "1 hour, 2 minutes" as 2 minutes or fail entirely.
+ */
+function parseAppleForClauseToMinutes (fragment) {
+	let total = 0;
+	const hours = fragment.match(/(\d+)\s+hours?/i);
+	const minutes = fragment.match(/(\d+)\s+minutes?/i);
+	if (hours) total += parseInt(hours[1], 10) * 60;
+	if (minutes) total += parseInt(minutes[1], 10);
+	return total;
 }
 
 module.exports = NodeHelper.create({
@@ -59,15 +73,16 @@ module.exports = NodeHelper.create({
 				? workoutDescriptions.join("\n")
 				: workoutDescriptions || "";
 
-			// One regex pass: per line, match workout type + minutes only when "today" appears on that line
+			// Per line: activity + duration when the line contains " today " (Apple's wording).
 			// e.g. "Walking, for 30 minutes, 59 seconds today at 8:39 PM..."
+			// e.g. "Tennis, for 1 hour, 2 minutes today at 9:35 AM..."
 			const todayWorkouts = [];
-			const re = /^(.+?),\s*for\s+(\d+)\s+minute.*today/gim;
+			const re = /^(.+?),\s*for\s+(.+?)\s+today\b/gimu;
 			let match;
 			while ((match = re.exec(descriptionsText)) !== null) {
 				const type = normalizeWorkoutType(match[1].trim());
-				const mins = parseInt(match[2], 10);
-				if (type) todayWorkouts.push({ type, mins });
+				const mins = parseAppleForClauseToMinutes(match[2]);
+				if (type && mins > 0) todayWorkouts.push({ type, mins });
 			}
 
 			// Effective minutes: max of Apple Health exercise minutes and sum of description minutes
