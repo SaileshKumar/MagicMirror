@@ -4,6 +4,9 @@ Custom MagicMirror build from repurposing a lululemon workout mirror. Replaced t
 
 Forked from MagicMirror:
 
+![Electronics](UpdatedWiring.png)
+![Final](FinalBuild.png)
+
 # ![MagicMirror²: The open source modular smart mirror platform.](.github/header.png)
 
 <p style="text-align: center">
