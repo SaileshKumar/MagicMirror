@@ -32,6 +32,45 @@ function parseAppleForClauseToMinutes (fragment) {
 	return total;
 }
 
+/** "Jul 14, 2026" → "2026-07-14", or null if unparseable */
+function parseProviderDate (raw) {
+	const d = new Date(raw.trim());
+	if (Number.isNaN(d.getTime())) return null;
+	return d.toLocaleDateString("en-CA");
+}
+
+/**
+ * Parse workoutDescriptions into today's workouts.
+ * New provider: "Strength Training · Jul 14, 2026" (one per line; mins unknown → null)
+ * Legacy Apple: "Walking, for 30 minutes today at 8:39 PM..."
+ */
+function parseTodayWorkouts (descriptionsText, today) {
+	const todayWorkouts = [];
+
+	// New format: "Activity · Mon DD, YYYY"
+	const newRe = /^(.+?)\s*·\s*(.+)$/gmu;
+	let match;
+	let sawNewFormat = false;
+	while ((match = newRe.exec(descriptionsText)) !== null) {
+		sawNewFormat = true;
+		const type = normalizeWorkoutType(match[1].trim());
+		const date = parseProviderDate(match[2]);
+		if (type && date === today) {
+			todayWorkouts.push({ type, mins: null });
+		}
+	}
+	if (sawNewFormat) return todayWorkouts;
+
+	// Legacy Apple Health wording
+	const appleRe = /^(.+?),\s*for\s+(.+?)\s+today\b/gimu;
+	while ((match = appleRe.exec(descriptionsText)) !== null) {
+		const type = normalizeWorkoutType(match[1].trim());
+		const mins = parseAppleForClauseToMinutes(match[2]);
+		if (type && mins > 0) todayWorkouts.push({ type, mins });
+	}
+	return todayWorkouts;
+}
+
 module.exports = NodeHelper.create({
 	// { "Sailesh": { workouts: ["walking"], date: "2026-04-05", lastUpdated: 17... } }
 	userData: {},
@@ -73,26 +112,16 @@ module.exports = NodeHelper.create({
 				? workoutDescriptions.join("\n")
 				: workoutDescriptions || "";
 
-			// Per line: activity + duration when the line contains " today " (Apple's wording).
-			// e.g. "Walking, for 30 minutes, 59 seconds today at 8:39 PM..."
-			// e.g. "Tennis, for 1 hour, 2 minutes today at 9:35 AM..."
-			const todayWorkouts = [];
-			const re = /^(.+?),\s*for\s+(.+?)\s+today\b/gimu;
-			let match;
-			while ((match = re.exec(descriptionsText)) !== null) {
-				const type = normalizeWorkoutType(match[1].trim());
-				const mins = parseAppleForClauseToMinutes(match[2]);
-				if (type && mins > 0) todayWorkouts.push({ type, mins });
-			}
+			const todayWorkouts = parseTodayWorkouts(descriptionsText, today);
 
-			// Effective minutes: max of Apple Health exercise minutes and sum of description minutes
-			const sumDescriptionMinutes = todayWorkouts.reduce((s, w) => s + w.mins, 0);
+			// Effective minutes: prefer exerciseMinutes; fall back to summed description mins (legacy)
+			const sumDescriptionMinutes = todayWorkouts.reduce((s, w) => s + (w.mins || 0), 0);
 			const effectiveMinutes = Math.max(rawMinutes, sumDescriptionMinutes);
 
 			Log.info(`[${this.name}] ${user}: exerciseMinutes=${rawMinutes}, sumDescriptionMinutes=${sumDescriptionMinutes}, effectiveMinutes=${effectiveMinutes}`);
 
-			// Build icon list: for each workout type, count occurrences where mins > 5.
-			// Show that many icons so e.g. two separate walks each appear.
+			// Build icon list: group by type. New format (mins null) counts every occurrence;
+			// legacy format only counts workouts with mins > 5 as significant duplicates.
 			const typeBuckets = {};
 			for (const w of todayWorkouts) {
 				if (!typeBuckets[w.type]) typeBuckets[w.type] = [];
@@ -101,7 +130,7 @@ module.exports = NodeHelper.create({
 
 			const allWorkouts = [];
 			for (const [type, minsList] of Object.entries(typeBuckets)) {
-				const significantCount = minsList.filter((m) => m > 5).length;
+				const significantCount = minsList.filter((m) => m === null || m > 5).length;
 				const iconCount = significantCount > 1 ? significantCount : 1;
 				for (let i = 0; i < iconCount; i++) allWorkouts.push(type);
 			}

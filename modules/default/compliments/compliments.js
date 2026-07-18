@@ -22,6 +22,8 @@ Module.register("compliments", {
 		specialDayUnique: false
 	},
 	compliments_new: null,
+	pushedOverride: null,
+	pushedOverrideExpiresAt: null,
 	activeOverride: null,
 	refreshMinimumDelay: 15 * 60 * 1000, // 15 minutes
 	lastIndexUsed: -1,
@@ -33,6 +35,26 @@ Module.register("compliments", {
 	// Define required scripts.
 	getScripts () {
 		return ["croner.js", "moment.js"];
+	},
+
+	getPushedOverrideMessage () {
+		if (!this.pushedOverride) return null;
+		if (this.pushedOverrideExpiresAt && Date.now() >= this.pushedOverrideExpiresAt) {
+			this.pushedOverride = null;
+			this.pushedOverrideExpiresAt = null;
+			return null;
+		}
+		return this.pushedOverride;
+	},
+
+	setPushedOverride (payload) {
+		if (payload && payload.message) {
+			this.pushedOverride = payload.message;
+			this.pushedOverrideExpiresAt = payload.expiresAt ?? null;
+		} else {
+			this.pushedOverride = null;
+			this.pushedOverrideExpiresAt = null;
+		}
 	},
 
 	async checkOverride () {
@@ -64,6 +86,7 @@ Module.register("compliments", {
 		this.lastComplimentIndex = -1;
 
 		await this.checkOverride();
+		this.sendSocketNotification("GET_COMPLIMENT_OVERRIDE");
 
 		if (this.config.remoteFile !== null) {
 			const response = await this.loadComplimentFile();
@@ -163,7 +186,12 @@ Module.register("compliments", {
 		const date = now.format("YYYY-MM-DD");
 		let compliments = [];
 
-		// If a timed override is active, show only that message
+		const pushed = this.getPushedOverrideMessage();
+		if (pushed) {
+			return [pushed];
+		}
+
+		// If a timed override file entry is active, show only that message
 		if (this.activeOverride) {
 			return [this.activeOverride];
 		}
@@ -342,6 +370,13 @@ Module.register("compliments", {
 	notificationReceived (notification, payload, sender) {
 		if (notification === "CURRENTWEATHER_TYPE") {
 			this.currentWeatherType = payload.type;
+		}
+	},
+
+	socketNotificationReceived (notification, payload) {
+		if (notification === "COMPLIMENT_OVERRIDE") {
+			this.setPushedOverride(payload);
+			this.updateDom(this.config.fadeSpeed);
 		}
 	}
 });
